@@ -71,3 +71,7 @@ jobs:
         asset_path: ./target/MorningLibraryUploaderSetup.exe
         asset_name: MorningLibraryUploaderSetup.exe
         asset_content_type: application/vnd.microsoft.portable-executable
+    - name: Print NSIS version
+      run: makensis -VERSION
+    - name: Print NSIS compile flags
+      run: makensis -HDRINFO
