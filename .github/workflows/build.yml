@@ -52,3 +52,22 @@ jobs:
         asset_path: ./MorningLibraryUploader.zip
         asset_name: MorningLibraryUploader.zip
         asset_content_type: application/zip
+    - name: Install NSIS
+      uses: joncloud/makensis-action@v1.1
+      continue-on-error: true
+    - name: Add NSIS to path
+      run:
+        echo "::add-path::%CD%/.nsis/nsis-3.03"
+    - name: Generate installer
+      run:
+        fbs installer
+    - name: Upload Installer
+      id: upload-installer
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./target/MorningLibraryUploaderSetup.exe
+        asset_name: MorningLibraryUploaderSetup.exe
+        asset_content_type: application/vnd.microsoft.portable-executable
