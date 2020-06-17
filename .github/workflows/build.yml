@@ -12,6 +12,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Install 7Zip PowerShell Module
+      shell: powershell
+      run: Install-Module 7Zip4PowerShell -Force -Verbose
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
@@ -23,3 +26,29 @@ jobs:
     - name: FBS Freeze
       run: |
         fbs freeze
+    - name: Compress binaries
+      shell: powershell
+      run:
+        Compress-7Zip "target/MorningLibraryUploader" -ArchiveFileName "MorningLibraryUploader.zip" -Format Zip
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: |
+          Automated Release by GitHub Action CI
+        draft: false
+        prerelease: true
+    - name: Upload Binaries
+      id: upload-binaries
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./MorningLibraryUploader.zip
+        asset_name: MorningLibraryUploader.zip
+        asset_content_type: application/zip
