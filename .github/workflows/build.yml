@@ -57,7 +57,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ github.ref }}/assets{?name,label}"
+        upload_url: "https://uploads.github.com/repos/${{ github.repository }}/releases/${GITHUB_REF##*/}/assets{?name,label}"
         asset_path: ./MorningLibraryUploader.zip
         asset_name: MorningLibraryUploader.zip
         asset_content_type: application/zip
@@ -70,7 +70,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ github.ref }}/assets{?name,label}"
+        upload_url: "https://uploads.github.com/repos/${{ github.repository }}/releases/${GITHUB_REF##*/}/assets{?name,label}"
         asset_path: ./target/MorningLibraryUploaderSetup.exe
         asset_name: MorningLibraryUploaderSetup.exe
         asset_content_type: application/vnd.microsoft.portable-executable
@@ -105,7 +105,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ github.ref }}/assets{?name,label}"
+        upload_url: "https://uploads.github.com/repos/${{ github.repository }}/releases/${GITHUB_REF##*/}/assets{?name,label}"
         asset_path: ./target/MorningLibraryUploader.dmg
         asset_name: MorningLibraryUploader.dmg
         asset_content_type: application/octet-stream
