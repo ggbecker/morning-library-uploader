@@ -6,72 +6,79 @@ on:
       - '*'
 
 jobs:
-  # windows:
+  create_release:
+    runs-on: ubuntu-latest
 
-  #   runs-on: windows-latest
-  #   strategy:
-  #     matrix:
-  #       python-version: [3.6]
+    steps:
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: |
+          Automated Release by GitHub Action CI
+        draft: false
+        prerelease: true
 
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - name: Install 7Zip PowerShell Module
-  #     shell: powershell
-  #     run: Install-Module 7Zip4PowerShell -Force -Verbose
-  #   - name: Set up Python ${{ matrix.python-version }}
-  #     uses: actions/setup-python@v2
-  #     with:
-  #       python-version: ${{ matrix.python-version }}
-  #   - name: Install dependencies
-  #     run: |
-  #       python -m pip install --upgrade pip
-  #       pip install mutagen requests fbs PyQt5==5.9.2
-  #   - name: FBS Freeze
-  #     run: |
-  #       fbs freeze
-  #   - name: Compress binaries
-  #     shell: powershell
-  #     run:
-  #       Compress-7Zip "target/MorningLibraryUploader" -ArchiveFileName "MorningLibraryUploader.zip" -Format Zip
-  #   - name: Create Release
-  #     id: create_release
-  #     uses: actions/create-release@latest
-  #     env:
-  #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #     with:
-  #       tag_name: ${{ github.ref }}
-  #       release_name: Release ${{ github.ref }}
-  #       body: |
-  #         Automated Release by GitHub Action CI
-  #       draft: false
-  #       prerelease: true
-  #   - name: Upload Binaries
-  #     id: upload-binaries
-  #     uses: actions/upload-release-asset@v1
-  #     env:
-  #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #     with:
-  #       upload_url: ${{ steps.create_release.outputs.upload_url }}
-  #       asset_path: ./MorningLibraryUploader.zip
-  #       asset_name: MorningLibraryUploader.zip
-  #       asset_content_type: application/zip
-  #   - name: Generate installer
-  #     run:
-  #       fbs installer
-  #   - name: Upload Installer
-  #     id: upload-installer
-  #     uses: actions/upload-release-asset@v1
-  #     env:
-  #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #     with:
-  #       upload_url: ${{ steps.create_release.outputs.upload_url }}
-  #       asset_path: ./target/MorningLibraryUploaderSetup.exe
-  #       asset_name: MorningLibraryUploaderSetup.exe
-  #       asset_content_type: application/vnd.microsoft.portable-executable
+  windows:
+
+    runs-on: windows-latest
+    needs: create_release
+    strategy:
+      matrix:
+        python-version: [3.6]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install 7Zip PowerShell Module
+      shell: powershell
+      run: Install-Module 7Zip4PowerShell -Force -Verbose
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install mutagen requests fbs PyQt5==5.9.2
+    - name: FBS Freeze
+      run: |
+        fbs freeze
+    - name: Compress binaries
+      shell: powershell
+      run:
+        Compress-7Zip "target/MorningLibraryUploader" -ArchiveFileName "MorningLibraryUploader.zip" -Format Zip
+    - name: Upload Binaries
+      id: upload-binaries
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ github.ref }}/assets{?name,label}"
+        asset_path: ./MorningLibraryUploader.zip
+        asset_name: MorningLibraryUploader.zip
+        asset_content_type: application/zip
+    - name: Generate installer
+      run:
+        fbs installer
+    - name: Upload Installer
+      id: upload-installer
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ github.ref }}/assets{?name,label}"
+        asset_path: ./target/MorningLibraryUploaderSetup.exe
+        asset_name: MorningLibraryUploaderSetup.exe
+        asset_content_type: application/vnd.microsoft.portable-executable
   
   macos:
 
     runs-on: macos-latest
+    needs: create_release
     strategy:
       matrix:
         python-version: [3.6]
@@ -92,25 +99,13 @@ jobs:
     - name: Generate installer
       run:
         fbs installer
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@latest
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        body: |
-          Automated Release by GitHub Action CI
-        draft: false
-        prerelease: true
     - name: Upload Installer
       id: upload-installer
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        upload_url: "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ github.ref }}/assets{?name,label}"
         asset_path: ./target/MorningLibraryUploader.dmg
         asset_name: MorningLibraryUploader.dmg
         asset_content_type: application/octet-stream
