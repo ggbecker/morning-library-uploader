@@ -1,6 +1,9 @@
 name: Build and Bundle Application
 
-on: [push]
+on:
+  push:
+    tags:
+      - '*'
 
 jobs:
   build:
@@ -52,12 +55,6 @@ jobs:
         asset_path: ./MorningLibraryUploader.zip
         asset_name: MorningLibraryUploader.zip
         asset_content_type: application/zip
-#     - name: Install NSIS
-#       uses: joncloud/makensis-action@v1.1
-#       continue-on-error: true
-#     - name: Add NSIS to path
-#       run:
-#         echo "::add-path::d:\a\_actions\joncloud\makensis-action\v1.1\.nsis\nsis-3.03\.nsis\nsis-3.03"
     - name: Generate installer
       run:
         fbs installer
@@ -71,7 +68,3 @@ jobs:
         asset_path: ./target/MorningLibraryUploaderSetup.exe
         asset_name: MorningLibraryUploaderSetup.exe
         asset_content_type: application/vnd.microsoft.portable-executable
-    - name: Print NSIS version
-      run: makensis -VERSION
-    - name: Print NSIS compile flags
-      run: makensis -HDRINFO
