@@ -33,6 +33,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Tag name
+      id: tag_name
+      run: |
+        echo ::set-output name=SOURCE_TAG::${GITHUB_REF#refs/tags/}
     - name: Install 7Zip PowerShell Module
       shell: powershell
       run: Install-Module 7Zip4PowerShell -Force -Verbose
@@ -57,7 +61,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: "https://uploads.github.com/repos/${{ github.repository }}/releases/${GITHUB_REF##*/}/assets{?name,label}"
+        upload_url: "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.tag_name.outputs.SOURCE_TAG }}/assets{?name,label}"
         asset_path: ./MorningLibraryUploader.zip
         asset_name: MorningLibraryUploader.zip
         asset_content_type: application/zip
@@ -70,7 +74,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: "https://uploads.github.com/repos/${{ github.repository }}/releases/${GITHUB_REF##*/}/assets{?name,label}"
+        upload_url: "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.tag_name.outputs.SOURCE_TAG }}/assets{?name,label}"
         asset_path: ./target/MorningLibraryUploaderSetup.exe
         asset_name: MorningLibraryUploaderSetup.exe
         asset_content_type: application/vnd.microsoft.portable-executable
@@ -85,6 +89,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Tag name
+      id: tag_name
+      run: |
+        echo ::set-output name=SOURCE_TAG::${GITHUB_REF#refs/tags/}
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
@@ -105,7 +113,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: "https://uploads.github.com/repos/${{ github.repository }}/releases/${GITHUB_REF##*/}/assets{?name,label}"
+        upload_url: "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.tag_name.outputs.SOURCE_TAG }}/assets{?name,label}"
         asset_path: ./target/MorningLibraryUploader.dmg
         asset_name: MorningLibraryUploader.dmg
         asset_content_type: application/octet-stream
